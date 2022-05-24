@@ -67,7 +67,9 @@ internal class Sphere : Primitives
     //returns a point on the sureface (WIP)
     internal override Vector3 ReturnNormal(Vector3 distance)
     {
-        return Position - distance; 
+        Vector3 toReturn = new Vector3(Position.X - distance.X, Position.Y - distance.Y, Position.Z - distance.Z);
+        toReturn.Normalize();
+        return toReturn; 
     }
 }
         

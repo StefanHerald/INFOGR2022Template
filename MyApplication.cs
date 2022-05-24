@@ -1,8 +1,6 @@
 
-using System;
 using INFOGR2022Template;
-using OpenTK;
-using OpenTK.Graphics.OpenGL;
+
 namespace Template
 {
 	class MyApplication
