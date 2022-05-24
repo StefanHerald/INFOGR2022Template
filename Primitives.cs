@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 internal class Primitives
 {
     //a vector 3 for the color. All float values must be between 0 and 1.
-    Vector3 RGB;
+    internal Vector3 RGB;
     public Primitives(Vector3 RGB)
     {
         this.RGB = RGB;
@@ -27,8 +27,8 @@ internal class Primitives
 internal class Plane : Primitives
 {
     //defines the normal and distance by which the plane is defined
-    Vector3 normal;
-    float distance;
+    internal Vector3 normal;
+    internal float distance;
     //intitialize
     public Plane(Vector3 normal, float distance, Vector3 RGB) : base(RGB)
     {
@@ -55,8 +55,8 @@ internal class Plane : Primitives
 internal class Sphere : Primitives
 {
     //a position and a radius to define the circle
-    Vector3 Position;
-    float Radius;
+    internal Vector3 Position;
+    internal float Radius;
     //intitialize
     public Sphere(Vector3 Position, float Radius, Vector3 RGB) : base(RGB)
     {
@@ -64,7 +64,7 @@ internal class Sphere : Primitives
         this.Radius = Radius;
     }
 
-    //returns a point on the sureface (WIP)
+    //returns a normal on the surface 
     internal override Vector3 ReturnNormal(Vector3 distance)
     {
         Vector3 toReturn = new Vector3(Position.X - distance.X, Position.Y - distance.Y, Position.Z - distance.Z);
