@@ -18,6 +18,12 @@ namespace INFOGR2022Template
         Vector3 upRight;
         //downRight corner
         Vector3 downleft;
+        /// <summary>
+        /// initialize the Raytracer using a scene, a camera and a screen.
+        /// </summary>
+        /// <param name="scene"> the scene containg all the primitives </param> 
+        /// <param name="camera">the camera with a position, a updirection and a lookatdirection</param>
+        /// <param name="screen">the screen made of pixels that need to be colored according to the pixel</param>
         public Raytracer(Scene scene, Camera camera, Surface screen)
         {
             this.scene = scene;
@@ -32,49 +38,85 @@ namespace INFOGR2022Template
             upRight = center + camera.upDirection + rightDirection;
             downleft = center - camera.upDirection - rightDirection;
         }
-
+        /// <summary>
+        /// render the scene using raytracing
+        /// </summary>
         internal void Render()
         {
+            //the width of the plane
             Vector3 horizon = upLeft - upRight;
+            //
             Vector3 vertical = downleft - upLeft;
-            for(int x = 0; x < screen.width; x++)
+            for (int y = 0; y < screen.height; y++)
             {
-                for(int y = 0; y < screen.height; y++)
+                for (int x = 0; x < screen.width; x++)
                 {
-                    primaryRay.direction = upLeft + (x / screen.width) * horizon + (y/screen.height) * vertical;
+                    //reset the primary ray and set the direction and normalize it
+                    primaryRay.scalar = 0;
+                    primaryRay.RGB = new Vector3(0);
+                    primaryRay.direction = upLeft + (x / screen.width) * horizon + (y / screen.height) * vertical;
                     primaryRay.direction.Normalize();
+                    //for every object
                     foreach (Primitives p in scene.objects)
                     {
-                        if(p is Sphere)
+                        //if it is a sphere
+                        if (p is Sphere)
                         {
+                            primaryRay.scalar = 0;
+                            //intersect the ray with the sphere, storing the result in the scalar of the primary ray
                             IntersectSphere((Sphere)p, primaryRay);
-                            if(primaryRay.scalar > 0)
+                            //if it hit something
+                            if (primaryRay.scalar > 0)
                             {
+                                //create a shadow ray and set its position
                                 Ray shadowRay = new Ray();
                                 shadowRay.position = primaryRay.position * primaryRay.scalar;
-                                foreach(Light l in scene.lights)
+                                //then for every light
+                                foreach (Light l in scene.lights)
                                 {
-                                    
+                                    //reset the scalar and set the normal direction
+                                    shadowRay.scalar = 0;
+                                    shadowRay.direction = l.position - shadowRay.position;
+                                    shadowRay.direction.Normalize();
+                                    //intersect it with the sphere
+                                    IntersectSphere((Sphere)p, shadowRay);
+                                    //if it doesn't hit it, set the color
+                                    if (shadowRay.scalar <= 0.0001)
+                                    {
+                                        primaryRay.RGB = p.RGB;
+                                    }
                                 }
                             }
                         }
                     }
+                    //using MixColor store the colour of the ray into the pixel
+                    screen.pixels[x + screen.width * y] = MixColor((int)(primaryRay.RGB[0] * 256),
+                        (int)(primaryRay.RGB[1] * 256),
+                        (int)(primaryRay.RGB[2] * 256));
+                    //GOD MAKE IT WORK (remove later)
+                    if (screen.pixels[x + screen.width * y] != 0)
+                    {
+                        Console.WriteLine("IT WORKS");
+                        Console.ReadLine();
+                    }
                 }
+
             }
         }
 
+        //intersect a ray with the sphere, storing the scalar if it does
         internal void IntersectSphere(Sphere sphere, Ray ray)
         {
-            Vector3 c = sphere.Position - ray.position; 
-            float t = Vector3.Dot(c, ray.direction); 
-            Vector3 q = c - t * ray.direction; 
-            float p2 = q.LengthSquared; 
-            if (p2 > sphere.Radius) 
-                return; 
-            t -= (float)Math.Sqrt(sphere.Radius - p2); 
-            if ((t < ray.scalar) && (t > 0)) 
+            Vector3 c = sphere.Position - ray.position;
+            float t = Vector3.Dot(c, ray.direction);
+            Vector3 q = c - t * ray.direction;
+            float p2 = q.LengthSquared;
+            if (p2 > sphere.Radius)
+                return;
+            t -= (float)Math.Sqrt(sphere.Radius - p2);
+            if ((t < ray.scalar) && (t > 0))
                 ray.scalar = t;
-        }        
+        }
 
         //a ray is defined by a position and a (normalized) direction
         internal struct Ray
@@ -91,5 +133,11 @@ namespace INFOGR2022Template
                 A.Z * B.X - A.X * B.Z,
                 A.X * B.Y - A.Y * B.X);
         }
+        //mix a color
+        int MixColor(int red, int green, int blue)
+        {
+            return (red << 16) + (green << 8) + blue;
+        }
+
     }
 }

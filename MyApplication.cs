@@ -1,17 +1,25 @@
 
 using INFOGR2022Template;
+using OpenTK;
 
 namespace Template
 {
 	class MyApplication
 	{
 		// member variables
-		public Surface screen;
-		public Raytracer raytracer;
+		internal Surface screen;
+		Raytracer raytracer;
+		Camera camera;
+		Scene scene;
 		// initialize
 		public void Init()
 		{
-
+			//setting the scene, the camera and the ray tracer (not sure if the values are correct)
+			scene = new Scene();
+			scene.objects.Add(new Sphere(new Vector3(2, 3, 4), 1, new Vector3(0f,0.5f,0.5f)));
+			scene.lights.Add(new Light(new Vector3(1, 4, 3.5f), new Vector3(1, 1, 1)));
+			camera = new Camera(new Vector3(0), new Vector3(1, 1, 1), new Vector3(-1, -1, 2));
+			raytracer = new Raytracer(scene, camera, screen);
 		}
 
         public void RenderGL()
@@ -26,10 +34,7 @@ namespace Template
 		}
 
 
-        int MixColor(int red, int green, int blue) 
-		{
-			return (red << 16) + (green << 8) + blue;
-		}
+        
 
 		int TX(float x, int origin = 320, int scale = 4)
         {

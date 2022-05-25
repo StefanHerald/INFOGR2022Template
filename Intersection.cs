@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace INFOGR2022Template
 {
-    internal class Intersection
+    internal struct Intersection
     {
         //the nearest primitive to check
         Primitives nearestPrimitive;
