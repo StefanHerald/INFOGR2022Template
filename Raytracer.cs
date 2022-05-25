@@ -43,17 +43,48 @@ namespace INFOGR2022Template
                 {
                     primaryRay.direction = upLeft + (x / screen.width) * horizon + (y/screen.height) * vertical;
                     primaryRay.direction.Normalize();
+                    foreach (Primitives p in scene.objects)
+                    {
+                        if(p is Sphere)
+                        {
+                            IntersectSphere((Sphere)p, primaryRay);
+                            if(primaryRay.scalar > 0)
+                            {
+                                Ray shadowRay = new Ray();
+                                shadowRay.position = primaryRay.position * primaryRay.scalar;
+                                foreach(Light l in scene.lights)
+                                {
+                                    
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }
 
-        //a ray is defined by a position and a (nornalized) direction
+        internal void IntersectSphere(Sphere sphere, Ray ray)
+        {
+            Vector3 c = sphere.Position - ray.position; 
+            float t = Vector3.Dot(c, ray.direction); 
+            Vector3 q = c - t * ray.direction; 
+            float p2 = q.LengthSquared; 
+            if (p2 > sphere.Radius) 
+                return; 
+            t -= (float)Math.Sqrt(sphere.Radius - p2); 
+            if ((t < ray.scalar) && (t > 0)) 
+                ray.scalar = t;
+        }        
+
+        //a ray is defined by a position and a (normalized) direction
         internal struct Ray
         {
+            internal Vector3 RGB;
             internal Vector3 position;
+            internal float scalar;
             internal Vector3 direction;
         }
-        //takes the cross product of two vectors tp calulate a thrid, orthogonal to both
+        //takes the cross product of two vectors to calulate a thrid, orthogonal to both
         internal Vector3 CrossProduct(Vector3 A, Vector3 B)
         {
             return new Vector3(A.Y * B.Z - A.Z * B.Y,
