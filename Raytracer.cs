@@ -8,8 +8,6 @@ namespace INFOGR2022Template
     {
         Scene scene;
         Camera camera;
-      
-        internal Surface Debug;
         //the ray that will be set through the the camera origin and the screen plane
         Ray primaryRay = new Ray();
         //the intersection
@@ -28,7 +26,6 @@ namespace INFOGR2022Template
         /// <param name="screen">the screen made of pixels that need to be colored according to the pixel</param>
         public Raytracer(Scene scene, Camera camera)
         {
-            Debug = new Surface(OpenTKApp.app.screen.width, OpenTKApp.app.screen.height);
             this.scene = scene;
             this.camera = camera;
             primaryRay.position = camera.position;
@@ -95,7 +92,12 @@ namespace INFOGR2022Template
                             }
                             if(y == OpenTKApp.app.screen.height/2 && x%10 == 0)
                             {
-                                Debug.Line((int)primaryRay.position.X, (int)primaryRay.position.Z, (int)primaryRay.direction.X * 100,(int)primaryRay.direction.Z * 100, 0x00FF00);
+                               /* OpenTK2ElectricBoogaloo.debug.debugScreen.Line(
+                                    (int)primaryRay.position.X, 
+                                    (int)primaryRay.position.Z, 
+                                    (int)primaryRay.direction.X * 100,
+                                    (int)primaryRay.direction.Z * 100, 
+                                    0x00FF00);*/
                             }
                         }
                     }

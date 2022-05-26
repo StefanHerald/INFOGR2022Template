@@ -12,7 +12,6 @@ namespace Template
 		Raytracer raytracer;
 		Camera camera;
 		Scene scene;
-		bool debugMode;
 
 		// initialize
 		public void Init()
@@ -29,31 +28,11 @@ namespace Template
 
 		}
 
-		public void RenderGL()
-        {
-		 
-		}
-
 		// tick: renders one frame
 		public void Tick()
 		{
-			GetInput();
 			raytracer.Render();
-            if (debugMode)
-            {
-				screen = raytracer.Debug;
-            }
 		}
-
-		void GetInput()
-		{ 
-			if(Console.KeyAvailable)
-				if(Console.ReadKey().Key == ConsoleKey.B)
-					debugMode = true;           
-        }
-
-        
-
 		int TX(float x, int origin = 320, int scale = 4)
         {
             x += scale/ 2;
