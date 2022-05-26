@@ -36,6 +36,7 @@ namespace Template
 			ClientSize = new Size( 640, 400 );
 			app = new MyApplication();
 			app.screen = new Surface( Width, Height );
+			app.Debug = new Surface( Width, Height );
 			Sprite.target = app.screen;
 			screenID = app.screen.GenTexture();
 			app.Init();
