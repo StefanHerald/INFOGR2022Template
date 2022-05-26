@@ -10,12 +10,12 @@ namespace INFOGR2022Template
     internal struct Intersection
     {
         //the nearest primitive to check
-        Primitives nearestPrimitive;
+        internal Primitives nearestPrimitive;
         //the distance to the primitve
-        Vector3 distance;
+        internal Raytracer.Ray distance;
         //the normal from the primitve 
-        Vector3 normal;
-        public Intersection(Primitives nearestPrimitive, Vector3 distance, Vector3 normal)
+        internal Vector3 normal;
+        public Intersection(Primitives nearestPrimitive, Raytracer.Ray distance, Vector3 normal)
         {
             this.nearestPrimitive = nearestPrimitive;
             this.distance = distance;
