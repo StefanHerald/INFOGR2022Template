@@ -19,16 +19,19 @@ namespace Template
 		{
 			//setting the scene, the camera and the ray tracer (not sure if the values are correct)
 			scene = new Scene();
+
+
 			scene.objects.Add(new Sphere(new Vector3(0,0,4), 1, new Vector3(0f,0.5f,0.5f)));
 			scene.lights.Add(new Light(new Vector3(0,1,0), new Vector3(1, 1, 1)));
 			camera = new Camera(new Vector3(0), new Vector3(0,0, 1), new Vector3(0,1,0));
 			raytracer = new Raytracer(scene, camera);
 			screen.Line(0, 0, 100, 100, 0x00FF00);
+
 		}
 
-        public void RenderGL()
+		public void RenderGL()
         {
-		
+		 
 		}
 
 		// tick: renders one frame
@@ -43,7 +46,7 @@ namespace Template
 		}
 
 		void GetInput()
-        {
+		{ 
 			if(Console.KeyAvailable)
 				if(Console.ReadKey().Key == ConsoleKey.B)
 					debugMode = true;           

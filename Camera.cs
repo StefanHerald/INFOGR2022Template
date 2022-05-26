@@ -16,15 +16,15 @@ namespace INFOGR2022Template
         //the up direction of the camera for the plane
         internal Vector3 upDirection;
         // the Field Of View of the camera
-        internal float FOV = 1;
+        internal float FOV;
         // the plane to define the screen
         internal Plane screen;
 
-        public Camera(Vector3 position, Vector3 lookaAtDirection, Vector3 upDirection,  float FOV = 1)
+        public Camera(Vector3 position, Vector3 lookAtDirection, Vector3 upDirection,  float FOV = 1)
         {
             this.position = position;
             this.FOV = FOV;
-            this.lookAtDirection = lookaAtDirection;
+            this.lookAtDirection = lookAtDirection;
             this.upDirection = upDirection;
             screen = new Plane(position + lookAtDirection, FOV, new Vector3(0));
         }

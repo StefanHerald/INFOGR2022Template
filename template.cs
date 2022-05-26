@@ -25,6 +25,7 @@ namespace Template
 	{
 		static int screenID;            // unique integer identifier of the OpenGL texture
 		internal static MyApplication app { get; private set;}       // instance of the application
+		internal static MyApplication debug { get; private set; }       // instance of the application
 		static bool terminated = false; // application terminates gracefully when this is true
 		protected override void OnLoad( EventArgs e )
 		{
@@ -40,6 +41,12 @@ namespace Template
 			Sprite.target = app.screen;
 			screenID = app.screen.GenTexture();
 			app.Init();
+			debug = new MyApplication();
+			debug.screen = new Surface(Width, Height);
+			Sprite.target = debug.screen;
+			screenID = debug.screen.GenTexture();
+			debug.Init();
+
 		}
 		protected override void OnUnload( EventArgs e )
 		{
@@ -104,6 +111,8 @@ namespace Template
 		{
 			// entry point
 			using( OpenTKApp app = new OpenTKApp() ) { app.Run( 30.0, 0.0 ); }
+			using (OpenTKApp debug = new OpenTKApp()) { debug.Run(30.0, 0.0); }
+;
 		}
 	}
 }
