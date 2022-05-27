@@ -31,6 +31,8 @@ namespace Template
 			raytracer.Render();
 			if (debugMode) 
 			{
+				//this is the only way to get this to work properly (Eke, I really tried)
+				//for Eke: how this works, is that it always renders the scene, but this gets put over it. Thus, if debug mode is not active, this is not drawn
 				int s = 0;
 				foreach (int p in OpenTKApp.Debug.debugScreen.pixels)
 				{

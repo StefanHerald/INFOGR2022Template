@@ -48,11 +48,12 @@ namespace INFOGR2022Template
             //the height of the plane
             Vector3 vertical = downleft - upLeft;
 
+            //draw the redline, representing the screen to be drawn. We divide by 10, because we assume the 'box' of our scene to be 10 by 10 by 10.
             OpenTKApp.Debug.debugScreen.Line(
                 (int)(OpenTKApp.Debug.debugScreen.width / 2 - (horizon.Length / 2) * (OpenTKApp.Debug.debugScreen.width / 10)),
-                (int)(OpenTKApp.Debug.debugScreen.height - vertical.Length * (OpenTKApp.Debug.debugScreen.height / 10) * camera.FOV),
+                (int)(OpenTKApp.Debug.debugScreen.height - camera.lookAtDirection.Length * (OpenTKApp.Debug.debugScreen.height / 10) * camera.FOV),
                 (int)(OpenTKApp.Debug.debugScreen.width / 2 + (horizon.Length / 2) * (OpenTKApp.Debug.debugScreen.width / 10)),
-                (int)(OpenTKApp.Debug.debugScreen.height - vertical.Length * (OpenTKApp.Debug.debugScreen.height / 10) * camera.FOV),
+                (int)(OpenTKApp.Debug.debugScreen.height - camera.lookAtDirection.Length * (OpenTKApp.Debug.debugScreen.height / 10) * camera.FOV),
                 0xFF0000);
 
 
@@ -103,15 +104,18 @@ namespace INFOGR2022Template
                             }
                             if(y == OpenTKApp.app.screen.height/2 && x%10 == 0)
                             {
+                                // X = width/2 + (-length/2 + length * (x/width)) * (width/10)  
+                                // y = height - length * FOV * (height / 10)
                                 //define a vector between the origin of the camera, set to be at half the width and full height of the screen and the virtual screen
-                                Vector2 DebugRay = new Vector2(OpenTKApp.Debug.debugScreen.width / 2 - OpenTKApp.Debug.debugScreen.width / 2 - (horizon.Length / 2) * (OpenTKApp.Debug.debugScreen.width / 10) + (x / OpenTKApp.app.screen.width) * (OpenTKApp.Debug.debugScreen.width / 10),
-                                    OpenTKApp.Debug.debugScreen.height - OpenTKApp.Debug.debugScreen.height - vertical.Length * (OpenTKApp.Debug.debugScreen.height / 10) * camera.FOV);
-                               //draw the line between the camera 
+                                Vector2 DebugRay = new Vector2((OpenTKApp.Debug.debugScreen.width / 2) + (-(horizon.Length / 2) + horizon.Length  + ((float)x / (float)OpenTKApp.app.screen.width)) * (OpenTKApp.Debug.debugScreen.width / 10),
+                                    OpenTKApp.Debug.debugScreen.height - camera.lookAtDirection.Length * (OpenTKApp.Debug.debugScreen.height / 10) * camera.FOV);
+                                DebugRay *= -100;
+                                //draw the line between the camera 
                                 OpenTKApp.Debug.debugScreen.Line(
                                      OpenTKApp.Debug.debugScreen.width/2,
                                      OpenTKApp.Debug.debugScreen.height,
-                                    (int)DebugRay.X,
-                                    (int)DebugRay.Y,
+                                    (int)DebugRay.X + OpenTKApp.Debug.debugScreen.width / 2,
+                                    (int)DebugRay.Y + OpenTKApp.Debug.debugScreen.height,
                                     0x00FF00);
                             }
                         }
