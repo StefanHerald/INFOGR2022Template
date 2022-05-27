@@ -42,10 +42,21 @@ namespace INFOGR2022Template
         /// </summary>
         internal void Render()
         {
+            
             //the width of the plane
             Vector3 horizon = upLeft - upRight;
-            //
+            //the height of the plane
             Vector3 vertical = downleft - upLeft;
+
+            OpenTKApp.Debug.debugScreen.Line(
+                (int)(OpenTKApp.Debug.debugScreen.width / 2 - (horizon.Length / 2) * (OpenTKApp.Debug.debugScreen.width / 10)),
+                (int)(OpenTKApp.Debug.debugScreen.height - vertical.Length * (OpenTKApp.Debug.debugScreen.height / 10) * camera.FOV),
+                (int)(OpenTKApp.Debug.debugScreen.width / 2 + (horizon.Length / 2) * (OpenTKApp.Debug.debugScreen.width / 10)),
+                (int)(OpenTKApp.Debug.debugScreen.height - vertical.Length * (OpenTKApp.Debug.debugScreen.height / 10) * camera.FOV),
+                0xFF0000);
+
+
+
             for (int y = 0; y < OpenTKApp.app.screen.height; y++)
             {
                 for (int x = 0; x < OpenTKApp.app.screen.width; x++)
@@ -53,7 +64,7 @@ namespace INFOGR2022Template
                     //reset the primary ray and set the direction and normalize it
                     primaryRay.scalar = 0;
                     primaryRay.RGB = new Vector3(0);
-                    primaryRay.direction = upLeft + (x / OpenTKApp.app.screen.width) * horizon + (y / OpenTKApp.app.screen.height) * vertical;
+                    primaryRay.direction = upLeft + ((float)x / (float)OpenTKApp.app.screen.width) * horizon + ((float)y / (float)OpenTKApp.app.screen.height) * vertical;
                     primaryRay.direction.Normalize();
                     //for every object
                     foreach (Primitives p in scene.objects)
@@ -92,19 +103,23 @@ namespace INFOGR2022Template
                             }
                             if(y == OpenTKApp.app.screen.height/2 && x%10 == 0)
                             {
-                               /* OpenTK2ElectricBoogaloo.debug.debugScreen.Line(
-                                    (int)primaryRay.position.X, 
-                                    (int)primaryRay.position.Z, 
-                                    (int)primaryRay.direction.X * 100,
-                                    (int)primaryRay.direction.Z * 100, 
-                                    0x00FF00);*/
+                                //define a vector between the origin of the camera, set to be at half the width and full height of the screen and the virtual screen
+                                Vector2 DebugRay = new Vector2(OpenTKApp.Debug.debugScreen.width / 2 - OpenTKApp.Debug.debugScreen.width / 2 - (horizon.Length / 2) * (OpenTKApp.Debug.debugScreen.width / 10) + (x / OpenTKApp.app.screen.width) * (OpenTKApp.Debug.debugScreen.width / 10),
+                                    OpenTKApp.Debug.debugScreen.height - OpenTKApp.Debug.debugScreen.height - vertical.Length * (OpenTKApp.Debug.debugScreen.height / 10) * camera.FOV);
+                               //draw the line between the camera 
+                                OpenTKApp.Debug.debugScreen.Line(
+                                     OpenTKApp.Debug.debugScreen.width/2,
+                                     OpenTKApp.Debug.debugScreen.height,
+                                    (int)DebugRay.X,
+                                    (int)DebugRay.Y,
+                                    0x00FF00);
                             }
                         }
                     }
                     //using MixColor store the colour of the ray into the pixel
-                   /* OpenTKApp.app.screen.pixels[x + OpenTKApp.app.screen.width * y] = MixColor((int)(primaryRay.RGB[0] * 256),
+                    OpenTKApp.app.screen.pixels[x + OpenTKApp.app.screen.width * y] = MixColor((int)(primaryRay.RGB[0] * 256),
                         (int)(primaryRay.RGB[1] * 256),
-                        (int)(primaryRay.RGB[2] * 256));*/
+                        (int)(primaryRay.RGB[2] * 256));
                     //GOD MAKE IT WORK (remove later)
                     if (OpenTKApp.app.screen.pixels[x + OpenTKApp.app.screen.width * y] != 0)
                     {

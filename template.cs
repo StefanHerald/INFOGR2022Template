@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Drawing;
+using System.Threading;
 using INFOGR2022Template;
 using OpenTK;
 using OpenTK.Graphics.OpenGL;
@@ -24,97 +25,10 @@ namespace Template
 {
 	public class OpenTKApp : GameWindow
 	{
+		OpenTK.Input.KeyboardState previouskeys;
 		static int screenID;            // unique integer identifier of the OpenGL texture
-		internal static MyApplication app { get; private set;}       // instance of the application
-		internal static Debug debug { get; private set; }       // instance of the application
-		static bool terminated = false; // application terminates gracefully when this is true
-		static internal bool debugMode = false;
-		protected override void OnLoad( EventArgs e )
-		{
-			// called during application initialization
-			GL.ClearColor(0, 0, 0, 0);
-			GL.Enable(EnableCap.Texture2D);
-			GL.Disable(EnableCap.DepthTest);
-			GL.Hint( HintTarget.PerspectiveCorrectionHint, HintMode.Nicest );
-			ClientSize = new Size( 640, 400 );
-			app = new MyApplication();
-			app.screen = new Surface( Width, Height );
-			Sprite.target = app.screen;
-			screenID = app.screen.GenTexture();
-			app.Init();
-		}
-		protected override void OnUnload( EventArgs e )
-		{
-			// called upon app close
-			GL.DeleteTextures( 1, ref screenID );
-			Environment.Exit( 0 );      // bypass wait for key on CTRL-F5
-		}
-		protected override void OnResize( EventArgs e )
-		{
-			// called upon window resize. Note: does not change the size of the pixel buffer.
-			GL.Viewport( 0, 0, Width, Height );
-			GL.MatrixMode( MatrixMode.Projection );
-			GL.LoadIdentity();
-			GL.Ortho( -1.0, 1.0, -1.0, 1.0, 0.0, 4.0 );
-		}
-		protected override void OnUpdateFrame( FrameEventArgs e )
-		{
-			// called once per frame; app logic
-			var keyboard = OpenTK.Input.Keyboard.GetState();
-			if( keyboard[OpenTK.Input.Key.Escape] ) 
-				terminated = true;
-			if (keyboard[OpenTK.Input.Key.B]) 
-				debugMode = true;
-		}
-	
-		protected override void OnRenderFrame( FrameEventArgs e )
-		{
-			//added from Onload
-			GL.ClearColor(0, 0, 0, 0);
-			GL.Enable(EnableCap.Texture2D);
-			GL.Disable(EnableCap.DepthTest);
-			GL.Color3(1.0f, 1.0f, 1.0f);
-			// called once per frame; render
-			app.Tick();
-			if( terminated )
-			{
-				Exit();
-				return;
-			}
-			// convert MyApplication.screen to OpenGL texture
-			GL.BindTexture( TextureTarget.Texture2D, screenID );
-			GL.TexImage2D( TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba,
-						   app.screen.width, app.screen.height, 0,
-						   OpenTK.Graphics.OpenGL.PixelFormat.Bgra,
-						   PixelType.UnsignedByte, app.screen.pixels
-						 );
-			// draw screen filling quad
-			GL.Begin( PrimitiveType.Quads );
-			GL.TexCoord2( 0.0f, 1.0f ); GL.Vertex2( -1.0f, -1.0f );
-			GL.TexCoord2( 1.0f, 1.0f ); GL.Vertex2( 1.0f, -1.0f );
-			GL.TexCoord2( 1.0f, 0.0f ); GL.Vertex2( 1.0f, 1.0f );
-			GL.TexCoord2( 0.0f, 0.0f ); GL.Vertex2( -1.0f, 1.0f );
-			GL.End();
-			// prepare for generic OpenGL rendering
-			GL.Enable(EnableCap.DepthTest);
-			GL.Disable(EnableCap.Texture2D); 
-			GL.Clear(ClearBufferMask.DepthBufferBit);
-			// tell OpenTK we're done rendering
-			SwapBuffers();
-		}
-		public static void Main(string[] args)
-		{
-			OpenTK2ElectricBoogaloo Debug = new OpenTK2ElectricBoogaloo();
-			if (debugMode)
-				using (Debug) { Debug.Run(30.0, 0.0); }
-			else
-				using (OpenTKApp app = new OpenTKApp()) { app.Run(30.0, 0.0); }
-		}
-	}
-	public class OpenTK2ElectricBoogaloo : GameWindow
-    {
-		static int screenID;            // unique integer identifier of the OpenGL texture
-		internal static Debug debug { get; private set; }       // instance of the application
+		internal static MyApplication app { get; private set; }       // instance of the application
+		internal static Debug Debug { get; set; }
 		static bool terminated = false; // application terminates gracefully when this is true
 		protected override void OnLoad(EventArgs e)
 		{
@@ -124,10 +38,13 @@ namespace Template
 			GL.Disable(EnableCap.DepthTest);
 			GL.Hint(HintTarget.PerspectiveCorrectionHint, HintMode.Nicest);
 			ClientSize = new Size(640, 400);
-		    debug = new Debug();
-			debug.debugScreen = new Surface(Width, Height);
-			Sprite.target = debug.debugScreen;
-			screenID = debug.debugScreen.GenTexture();
+			app = new MyApplication();
+			app.screen = new Surface(Width, Height);
+			Sprite.target = app.screen;
+			screenID = app.screen.GenTexture();
+			app.Init();
+			Debug = new Debug();
+			Debug.debugScreen = new Surface(Width, Height);
 		}
 		protected override void OnUnload(EventArgs e)
 		{
@@ -147,18 +64,23 @@ namespace Template
 		{
 			// called once per frame; app logic
 			var keyboard = OpenTK.Input.Keyboard.GetState();
-			if (keyboard[OpenTK.Input.Key.Escape]) terminated = true;
+			if (keyboard[OpenTK.Input.Key.Escape] && keyboard != previouskeys)
+				terminated = true;
+			if (keyboard[OpenTK.Input.Key.B] && keyboard != previouskeys)
+				app.debugMode = !app.debugMode;
+			previouskeys = keyboard;
 		}
+
 		protected override void OnRenderFrame(FrameEventArgs e)
 		{
-			debug.debugScreen.Line(Width, 0, Width - 100, 100, 0xFF0000);
 			//added from Onload
+
 			GL.ClearColor(0, 0, 0, 0);
 			GL.Enable(EnableCap.Texture2D);
 			GL.Disable(EnableCap.DepthTest);
 			GL.Color3(1.0f, 1.0f, 1.0f);
 			// called once per frame; render
-			//debug.Tick();
+			app.Tick();
 			if (terminated)
 			{
 				Exit();
@@ -167,9 +89,9 @@ namespace Template
 			// convert MyApplication.screen to OpenGL texture
 			GL.BindTexture(TextureTarget.Texture2D, screenID);
 			GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba,
-						   debug.debugScreen.width, debug.debugScreen.height, 0,
+						   app.screen.width, app.screen.height, 0,
 						   OpenTK.Graphics.OpenGL.PixelFormat.Bgra,
-						   PixelType.UnsignedByte, debug.debugScreen.pixels
+						   PixelType.UnsignedByte, app.screen.pixels
 						 );
 			// draw screen filling quad
 			GL.Begin(PrimitiveType.Quads);
@@ -185,6 +107,9 @@ namespace Template
 			// tell OpenTK we're done rendering
 			SwapBuffers();
 		}
-		
+		public static void Main(string[] args)
+		{
+			using (OpenTKApp app = new OpenTKApp()) { app.Run(30.0, 0.0); }
+		}
 	}
 }

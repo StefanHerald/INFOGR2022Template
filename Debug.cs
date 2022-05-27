@@ -10,6 +10,5 @@ namespace INFOGR2022Template
     internal class Debug
     {
         internal Surface debugScreen;
-
     }
 }
