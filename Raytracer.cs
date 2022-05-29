@@ -17,7 +17,7 @@ namespace INFOGR2022Template
         //upRight
         Vector3 upRight;
         //downRight corner
-        Vector3 downleft;
+        Vector3 downLeft;
         /// <summary>
         /// initialize the Raytracer using a scene, a camera and a screen.
         /// </summary>
@@ -35,18 +35,17 @@ namespace INFOGR2022Template
             Vector3 rightDirection = Vector3.Cross(camera.upDirection, camera.lookAtDirection);
             upLeft = center + camera.upDirection - rightDirection;
             upRight = center + camera.upDirection + rightDirection;
-            downleft = center - camera.upDirection - rightDirection;
+            downLeft = center - camera.upDirection - rightDirection;
         }
         /// <summary>
         /// render the scene using raytracing
         /// </summary>
         internal void Render()
         {
-            
             //the width of the plane
-            Vector3 horizon = upLeft - upRight;
+            Vector3 horizon = upRight - upLeft;
             //the height of the plane
-            Vector3 vertical = downleft - upLeft;
+            Vector3 vertical = upLeft - downLeft;
 
             //draw the redline, representing the screen to be drawn. We divide by 10, because we assume the 'box' of our scene to be 10 by 10 by 10.
             OpenTKApp.Debug.debugScreen.Line(
@@ -76,11 +75,11 @@ namespace INFOGR2022Template
                             primaryRay.scalar = 0;
                             //intersect the ray with the sphere, storing the result in the scalar of the primary ray
                             intersection = new Intersection();
-                            IntersectSphere((Sphere)p, primaryRay);
-                            primaryRay = intersection.distance;
                             //if it hits something
-                            if (primaryRay.scalar > 0)
+                            if (IntersectSphere((Sphere)p, primaryRay))
                             {
+                                primaryRay.RGB = p.RGB;
+                                /*
                                 //create a shadow ray and set its position
                                 Ray shadowRay = new Ray();
                                 shadowRay.position = primaryRay.position * primaryRay.scalar;
@@ -93,14 +92,13 @@ namespace INFOGR2022Template
                                     shadowRay.direction.Normalize();
                                     intersection = new Intersection();
                                     //intersect it with the sphere
-                                    IntersectSphere((Sphere)p, shadowRay);
-                                    shadowRay = intersection.distance;
+
                                     //if it doesn't hit it, set the color
-                                    if (shadowRay.scalar <= 0.0001)
+                                    if (IntersectSphere((Sphere)p, shadowRay))
                                     {
                                         primaryRay.RGB = p.RGB;
                                     }
-                                }
+                                }*/
                             }
                             if(y == OpenTKApp.app.screen.height/2 && x%10 == 0)
                             {
@@ -109,8 +107,8 @@ namespace INFOGR2022Template
                                 //define a vector between the origin of the camera, set to be at half the width and full height of the screen and the virtual screen
                                 Vector2 DebugRay = new Vector2((OpenTKApp.Debug.debugScreen.width / 2) + (-(horizon.Length / 2) + horizon.Length  + ((float)x / (float)OpenTKApp.app.screen.width)) * (OpenTKApp.Debug.debugScreen.width / 10),
                                     OpenTKApp.Debug.debugScreen.height - camera.lookAtDirection.Length * (OpenTKApp.Debug.debugScreen.height / 10) * camera.FOV);
-                                DebugRay *= -100;
-                                //draw the line between the camera 
+                                //draw the line between the camera and the screen
+
                                 OpenTKApp.Debug.debugScreen.Line(
                                      OpenTKApp.Debug.debugScreen.width/2,
                                      OpenTKApp.Debug.debugScreen.height,
@@ -135,7 +133,7 @@ namespace INFOGR2022Template
         }
 
         //intersect a ray with the sphere, storing the scalar if it does
-        internal void IntersectSphere(Sphere sphere, Ray ray)
+        internal bool IntersectSphere(Sphere sphere, Ray ray)
         {
             Vector3 c = sphere.Position - ray.position;
             float t = Vector3.Dot(c, ray.direction);
@@ -143,16 +141,14 @@ namespace INFOGR2022Template
             float p2 = q.LengthSquared;
             if (p2 > sphere.Radius)
             {
-                intersection.nearestPrimitive = sphere;
-                intersection.distance = ray;
-                return;
+                return false;
             }
             t -= (float)Math.Sqrt(sphere.Radius - p2);
-            if ((t < ray.scalar) && (t > 0))
+            if ((t < ray.direction.Length) && (t > 0))
                 ray.scalar = t;
             intersection.nearestPrimitive = sphere;
             intersection.distance = ray;
-
+            return true;
         }
 
         //a ray is defined by a position and a (normalized) direction

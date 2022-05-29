@@ -45,6 +45,7 @@ namespace Template
 			app.Init();
 			Debug = new Debug();
 			Debug.debugScreen = new Surface(Width, Height);
+			Debug.Init();
 		}
 		protected override void OnUnload(EventArgs e)
 		{
