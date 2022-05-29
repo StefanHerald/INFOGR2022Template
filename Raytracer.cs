@@ -46,7 +46,8 @@ namespace INFOGR2022Template
             Vector3 horizon = upRight - upLeft;
             //the height of the plane
             Vector3 vertical = upLeft - downLeft;
-
+            //set the pos of the camera
+            primaryRay.position = camera.position;
             //draw the redline, representing the screen to be drawn. We divide by 10, because we assume the 'box' of our scene to be 10 by 10 by 10.
             OpenTKApp.Debug.debugScreen.Line(
                 (int)(OpenTKApp.Debug.debugScreen.width / 2 - (horizon.Length / 2) * (OpenTKApp.Debug.debugScreen.width / 10)),
@@ -64,15 +65,23 @@ namespace INFOGR2022Template
                     //reset the primary ray and set the direction and normalize it
                     primaryRay.scalar = 0;
                     primaryRay.RGB = new Vector3(0);
+                    if((float)x / (float)OpenTKApp.app.screen.width == 0.5 && y/(float)OpenTKApp.app.screen.height == 0.5)
+                    {
+                        ;
+                    }
                     primaryRay.direction = upLeft + ((float)x / (float)OpenTKApp.app.screen.width) * horizon + ((float)y / (float)OpenTKApp.app.screen.height) * vertical;
                     primaryRay.direction.Normalize();
+                    if(Math.Abs(primaryRay.direction.X) <= 0.5 && Math.Abs(primaryRay.direction.Y) <= 0.5 && primaryRay.direction.Z <= 3)
+                    {
+                        Console.WriteLine("found one: " + x + " " + y);
+                    }
                     //for every object
                     foreach (Primitives p in scene.objects)
                     {
                         //if it is a sphere
                         if (p is Sphere)
                         {
-                            primaryRay.scalar = 0;
+                            primaryRay.scalar = 1;
                             //intersect the ray with the sphere, storing the result in the scalar of the primary ray
                             intersection = new Intersection();
                             //if it hits something
@@ -99,7 +108,7 @@ namespace INFOGR2022Template
                                         primaryRay.RGB = p.RGB;
                                     }
                                 }*/
-                            }
+                            }/*
                             if(y == OpenTKApp.app.screen.height/2 && x%10 == 0)
                             {
                                 // X = width/2 + (-length/2 + length * (x/width)) * (width/10)  
@@ -115,17 +124,17 @@ namespace INFOGR2022Template
                                     (int)DebugRay.X + OpenTKApp.Debug.debugScreen.width / 2,
                                     (int)DebugRay.Y + OpenTKApp.Debug.debugScreen.height,
                                     0x00FF00);
-                            }
+                            }*/
                         }
                     }
                     //using MixColor store the colour of the ray into the pixel
-                    OpenTKApp.app.screen.pixels[x + OpenTKApp.app.screen.width * y] = MixColor((int)(primaryRay.RGB[0] * 256),
-                        (int)(primaryRay.RGB[1] * 256),
-                        (int)(primaryRay.RGB[2] * 256));
+                    OpenTKApp.app.screen.Plot(x, y, MixColor((int)(primaryRay.RGB.X * 255),
+                        (int)(primaryRay.RGB.Y * 255),
+                        (int)(primaryRay.RGB.Z * 255)));
                     //GOD MAKE IT WORK (remove later)
                     if (OpenTKApp.app.screen.pixels[x + OpenTKApp.app.screen.width * y] != 0)
                     {
-                        Console.WriteLine("IT WORKS");
+                        Console.WriteLine("IT WORKS: x is " + x + " and y is " + y + " and the colour is " + primaryRay.RGB.X * 255 + " " + primaryRay.RGB.Y * 255 + " " + primaryRay.RGB.Z * 255);
                     }
                 }
 

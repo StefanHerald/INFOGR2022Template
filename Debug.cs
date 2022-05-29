@@ -31,7 +31,6 @@ namespace INFOGR2022Template
         {
 			//Clears the debug screen, then renders it
 			debugScreen.Clear(0x000000);
-			raytracer.Render();
 			//Draws the lines for the debug screen (could be looked at again, not sure)
 			for(int i = -debugScreen.width / 5; i <= debugScreen.width * 1.2; i+= 64)
 			debugScreen.Line(debugScreen.width / 2, debugScreen.height, i, 0, 0x00FF00);
