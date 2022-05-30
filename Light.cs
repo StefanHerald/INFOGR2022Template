@@ -11,9 +11,17 @@ namespace INFOGR2022Template
     {
         //position of the light
         internal Vector3 position;
-        public Light(Vector3 position, Vector3 RGB): base(RGB)
+        internal float watt;
+        public Light(Vector3 position, Vector3 RGB, float watt) : base(RGB)
         {
             this.position = position;
+            this.watt = watt;
+        }
+
+        internal Vector3 returnColor(Vector3 normal, Vector3 lightDirection)
+        {
+            Vector3 reflected = (1f / lightDirection.LengthSquared) * watt * RGB * Math.Max(0, Vector3.Dot(normal, lightDirection));
+            return reflected;
         }
     }
 }

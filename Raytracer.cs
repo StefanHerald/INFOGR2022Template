@@ -87,11 +87,10 @@ namespace INFOGR2022Template
                             //if it hits something
                             if (IntersectSphere((Sphere)p, primaryRay))
                             {
-                                primaryRay.RGB = p.RGB;
-                                /*
+                                
                                 //create a shadow ray and set its position
                                 Ray shadowRay = new Ray();
-                                shadowRay.position = primaryRay.position * primaryRay.scalar;
+                                shadowRay.position = primaryRay.position + primaryRay.direction * primaryRay.scalar;
                                 //then for every light
                                 foreach (Light l in scene.lights)
                                 {
@@ -99,43 +98,42 @@ namespace INFOGR2022Template
                                     shadowRay.scalar = 0;
                                     shadowRay.direction = l.position - shadowRay.position;
                                     shadowRay.direction.Normalize();
-                                    intersection = new Intersection();
-                                    //intersect it with the sphere
-
-                                    //if it doesn't hit it, set the color
-                                    if (IntersectSphere((Sphere)p, shadowRay))
+                                    bool hitAny = false;
+                                    foreach (Primitives toCheck in scene.objects)
                                     {
-                                        primaryRay.RGB = p.RGB;
+                                        intersection = new Intersection();
+                                        if (toCheck is Sphere) 
+                                        {
+                                            hitAny = IntersectSphere((Sphere)toCheck, shadowRay);
+                                        }
+                                        if (hitAny)
+                                            break;
                                     }
-                                }*/
-                            }/*
+                                    //if it doesn't hit any, set the color
+                                    if (!hitAny)
+                                    {
+
+                                        primaryRay.RGB = l.returnColor(p.ReturnNormal(primaryRay.position + primaryRay.direction * primaryRay.scalar), shadowRay.direction);
+                                    }
+                                }
+                            }
                             if(y == OpenTKApp.app.screen.height/2 && x%10 == 0)
-                            {
-                                // X = width/2 + (-length/2 + length * (x/width)) * (width/10)  
-                                // y = height - length * FOV * (height / 10)
-                                //define a vector between the origin of the camera, set to be at half the width and full height of the screen and the virtual screen
-                                Vector2 DebugRay = new Vector2((OpenTKApp.Debug.debugScreen.width / 2) + (-(horizon.Length / 2) + horizon.Length  + ((float)x / (float)OpenTKApp.app.screen.width)) * (OpenTKApp.Debug.debugScreen.width / 10),
-                                    OpenTKApp.Debug.debugScreen.height - camera.lookAtDirection.Length * (OpenTKApp.Debug.debugScreen.height / 10) * camera.FOV);
+                            { 
                                 //draw the line between the camera and the screen
 
                                 OpenTKApp.Debug.debugScreen.Line(
                                      OpenTKApp.Debug.debugScreen.width/2,
                                      OpenTKApp.Debug.debugScreen.height,
-                                    (int)DebugRay.X + OpenTKApp.Debug.debugScreen.width / 2,
-                                    (int)DebugRay.Y + OpenTKApp.Debug.debugScreen.height,
+                                    (int)primaryRay.direction.X * -OpenTKApp.Debug.debugScreen.width / 10 + OpenTKApp.Debug.debugScreen.width / 2,
+                                    (int)primaryRay.direction.Z * -OpenTKApp.Debug.debugScreen.height / 10 + OpenTKApp.Debug.debugScreen.height,
                                     0x00FF00);
-                            }*/
+                            }
                         }
                     }
                     //using MixColor store the colour of the ray into the pixel
                     OpenTKApp.app.screen.Plot(x, y, MixColor((int)(primaryRay.RGB.X * 255),
                         (int)(primaryRay.RGB.Y * 255),
                         (int)(primaryRay.RGB.Z * 255)));
-                    //GOD MAKE IT WORK (remove later)
-                    if (OpenTKApp.app.screen.pixels[x + OpenTKApp.app.screen.width * y] != 0)
-                    {
-                        Console.WriteLine("IT WORKS: x is " + x + " and y is " + y + " and the colour is " + primaryRay.RGB.X * 255 + " " + primaryRay.RGB.Y * 255 + " " + primaryRay.RGB.Z * 255);
-                    }
                 }
 
             }
@@ -153,7 +151,7 @@ namespace INFOGR2022Template
                 return false;
             }
             t -= (float)Math.Sqrt(sphere.Radius - p2);
-            if ((t < ray.direction.Length) && (t > 0))
+            if ((t < ray.scalar) && (t > 0))
                 ray.scalar = t;
             intersection.nearestPrimitive = sphere;
             intersection.distance = ray;

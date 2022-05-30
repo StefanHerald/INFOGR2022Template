@@ -7,7 +7,6 @@ namespace INFOGR2022Template
     internal class Debug
 	{
 		// member variables
-		Raytracer raytracer;
 		Camera camera;
 		Scene debugscene;
 		internal bool debugMode;
@@ -24,16 +23,15 @@ namespace INFOGR2022Template
 			//setting the scene, the camera and the ray tracer (not sure if the values are correct)
 			debugscene = new Scene();
 			camera = new Camera(new Vector3(0), new Vector3(0, 0, 1), new Vector3(0, 1, 0));
-			raytracer = new Raytracer(debugscene, camera);
-			debugScreen.Line(0, 0, 100, 100, 0x00FF00);
+		//	debugScreen.Line(0, 0, 100, 100, 0x00FF00);
 		}
 		public void Tick()
         {
 			//Clears the debug screen, then renders it
 			debugScreen.Clear(0x000000);
 			//Draws the lines for the debug screen (could be looked at again, not sure)
-			for(int i = -debugScreen.width / 5; i <= debugScreen.width * 1.2; i+= 64)
-			debugScreen.Line(debugScreen.width / 2, debugScreen.height, i, 0, 0x00FF00);
+			/*for(int i = -debugScreen.width / 5; i <= debugScreen.width * 1.2; i+= 64)
+			debugScreen.Line(debugScreen.width / 2, debugScreen.height, i, 0, 0x00FF00);*/
 			//Gets all the spheres in the list of primitives
 			var circles = from a in MyApplication.scene.objects.OfType<Sphere>() select a;
 			//For every circle, the position is calculated 100 times using a formula
