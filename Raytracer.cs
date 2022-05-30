@@ -113,7 +113,7 @@ namespace INFOGR2022Template
                                     if (!hitAny)
                                     {
 
-                                        primaryRay.RGB = l.returnColor(p.ReturnNormal(primaryRay.position + primaryRay.direction * primaryRay.scalar), shadowRay.direction);
+                                        primaryRay.RGB = l.returnColor(p.ReturnNormal(primaryRay.position + primaryRay.direction * primaryRay.scalar), shadowRay.direction,p.RGB);
                                     }
                                 }
                             }

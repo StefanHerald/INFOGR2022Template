@@ -18,10 +18,10 @@ namespace INFOGR2022Template
             this.watt = watt;
         }
 
-        internal Vector3 returnColor(Vector3 normal, Vector3 lightDirection)
+        internal Vector3 returnColor(Vector3 normal, Vector3 lightDirection, Vector3 colour)
         {
             Vector3 reflected = (1f / lightDirection.LengthSquared) * watt * RGB * Math.Max(0, Vector3.Dot(normal, lightDirection));
-            return reflected;
+            return new Vector3(Math.Min(reflected.X,colour.X), Math.Min(reflected.Y, colour.Y), Math.Min(reflected.Z, colour.Z));
         }
     }
 }
