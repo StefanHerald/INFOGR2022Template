@@ -15,25 +15,30 @@ namespace Template
         internal bool debugMode;
         //this manages the gloss factor
         int gloss = 1;
-        // initialize
+        /// <summary>
+        /// initialize
+        /// </summary>
         public void Init()
         {
             //setting the scene, the camera and the ray tracer 
             scene = new Scene();
             scene.objects.Add(new Sphere(new Vector3(4, 8, 5), 1, new Vector3(1f, 0f, 0f), Primitives.materials.glossy));
-            scene.objects.Add(new Sphere(new Vector3(1, 8, 2), 4f, new Vector3(0f, 1f, 0f), Primitives.materials.diffuse));
-            scene.objects.Add(new Sphere(new Vector3(-3, 8, 5), 0.1f, new Vector3(0f, 0f, 1f),Primitives.materials.diffuse));
-          // scene.objects.Add(new Plane(new Vector3(0, 8, 25), new Vector3(0, 0, 800), new Vector3(1f, 1f, 0f)));
+            scene.objects.Add(new Sphere(new Vector3(1, 8, 5.5f), 1f, new Vector3(0f, 1f, 0f), Primitives.materials.mirror));
+            scene.objects.Add(new Sphere(new Vector3(-5, 8, 5), 0.4f, new Vector3(0f, 0f, 1f),Primitives.materials.glossy));
+          //  Plane p = new Plane(new Vector3(4,8,5), new Vector3(1, 0, 0), new Vector3(1f, 1f, 0f));
+           // p.getTexture = true;
+           // scene.objects.Add(p);
             //set the lights, first the position, then the color, then the watt strength
-            scene.lights.Add(new Light(new Vector3(4, 2, 3), new Vector3(1, 1, 1), 0.7f, gloss));
-         //   scene.lights.Add(new Light(new Vector3(10, 0, 10), new Vector3(1, 1, 1), 100f, gloss));
+            scene.lights.Add(new Light(new Vector3(4, 10, 6), new Vector3(1, 1, 1), 0.8f, gloss));
+          //  scene.lights.Add(new Light(new Vector3(4, 8, 3), new Vector3(1, 1, 1), 0.1f, gloss));
 
-            //scene.lights.Add(new Light(new Vector3(10, 5, 2), new Vector3(1, 1, 1), 1f));
             camera = new Camera(new Vector3(0), new Vector3(0, 0, 1), new Vector3(0, 1, 0), 100);
             raytracer = new Raytracer(scene, camera);
         }
 
-        // tick: renders one frame
+        /// <summary>
+        /// tick: renders one frame
+        /// </summary>
         public void Tick()
         {
             screen.Clear(0x000000);

@@ -20,6 +20,15 @@ namespace INFOGR2022Template
             this.watt = watt;
         }
 
+        /// <summary>
+        /// returns the color at a specific point in accordance to a material
+        /// </summary>
+        /// <param name="normal"></param>
+        /// <param name="lightDirection"></param>
+        /// <param name="colour"></param>
+        /// <param name="lookAtDirection"></param>
+        /// <param name="material"></param>
+        /// <returns></returns>
         internal Vector3 returnColor(Vector3 normal, Vector3 lightDirection, Vector3 colour, Vector3 lookAtDirection, Primitives.materials material)
         {
             Vector3 reflected = new Vector3();

@@ -16,6 +16,13 @@ namespace INFOGR2022Template
         // the plane to define the screen
         internal Plane screen;
 
+        /// <summary>
+        /// initialise
+        /// </summary>
+        /// <param name="position"></param>
+        /// <param name="lookAtDirection"></param>
+        /// <param name="upDirection"></param>
+        /// <param name="alpha"></param>
         public Camera(Vector3 position, Vector3 lookAtDirection, Vector3 upDirection, float alpha = 120)
         {
             this.position = position;

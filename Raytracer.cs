@@ -107,7 +107,12 @@ namespace INFOGR2022Template
 
             }
         }
-
+        /// <summary>
+        /// returns the colour after a successful intersection
+        /// </summary>
+        /// <param name="p"></param>
+        /// <param name="calcRay"></param>
+        /// <returns></returns>
         Vector3 returnColorLight(Primitives p, Ray calcRay)
         {
             //create a shadow ray and set its position
@@ -154,13 +159,14 @@ namespace INFOGR2022Template
         Vector3 CalculateMirror(Primitives toCheck, Ray secondaryRay)
         {
             if (secondaryRay.amountOfRecursion++ == recursionCap)
-                return new Vector3(0);
+                return new Vector3(0.07f);
             foreach (Primitives p in scene.objects)
             {
                 if (Intersect(p, secondaryRay))
+                {
                     if (p.material == Primitives.materials.mirror)
                     {
-                        secondaryRay.RGB *= toCheck.RGB;
+                        secondaryRay.RGB += toCheck.RGB;
                         secondaryRay.position = secondaryRay.position + secondaryRay.direction * intersection.distance.scalar;
                         secondaryRay.direction = secondaryRay.direction - 2 * (secondaryRay.direction * p.ReturnNormal(secondaryRay.position)) * p.ReturnNormal(secondaryRay.position);
                         secondaryRay.direction.Normalize();
@@ -168,13 +174,21 @@ namespace INFOGR2022Template
                     }
                     else
                     {
-                        secondaryRay.RGB *= returnColorLight(p, secondaryRay);
+                        secondaryRay.RGB += returnColorLight(p, secondaryRay);
                     }
+                    break;
+                }
+                
             }
             return secondaryRay.RGB;
         }
 
-       
+       /// <summary>
+       /// the general method which encompasses both intersect methods
+       /// </summary>
+       /// <param name="toCheck"></param>
+       /// <param name="ray"></param>
+       /// <returns></returns>
         bool Intersect(Primitives toCheck, Ray ray)
         {
             bool inter = false;
@@ -185,7 +199,12 @@ namespace INFOGR2022Template
             return inter;
 
         }
-        //intersect a ray with the sphere, storing the scalar if it does
+        /// <summary>
+        /// intersect a ray with the sphere, storing the scalar if it does
+        /// </summary>
+        /// <param name="sphere"></param>
+        /// <param name="ray"></param>
+        /// <returns></returns>
         bool IntersectSphere(Sphere sphere, Ray ray)
         {
             Vector3 c = sphere.Position - ray.position;
@@ -206,7 +225,12 @@ namespace INFOGR2022Template
             }
             return false;
         }
-
+        /// <summary>
+        /// intersects a vector with a plane
+        /// </summary>
+        /// <param name="plane"></param>
+        /// <param name="ray"></param>
+        /// <returns></returns>
         internal bool IntersectPlane(Plane plane, Ray ray)
         {
             intersection.nearestPrimitive = plane;

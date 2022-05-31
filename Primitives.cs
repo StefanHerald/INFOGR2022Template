@@ -68,7 +68,6 @@ internal class Plane : Primitives
         this.normal.Normalize();
         this.distance = distance;
         this.material = material;
-
     }
 
     /// <summary>
@@ -86,15 +85,16 @@ internal class Plane : Primitives
         }
         return -normal;
     }
-
+    /// <summary>
+    /// get the colour or the texture
+    /// </summary>
+    /// <param name="point"></param>
+    /// <returns></returns>
     internal override Vector3 GetColour(Vector3 point)
     {
         if (getTexture)
         {
-          //  if (distance)
-          //  {
-                
-           // }
+            return new Vector3(point.X/10f,point.Y/5f, point.Z/2f);
         }
         return base.GetColour(point);
     }
