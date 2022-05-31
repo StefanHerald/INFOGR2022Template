@@ -8,19 +8,23 @@ using System.Threading.Tasks;
 
 internal class Primitives
 {
+    //the material
+    internal enum materials { diffuse, glossy, mirror};
+    internal double reflectiveIndex;
+    internal materials material;
     //a vector 3 for the color. All float values must be between 0 and 1.
     internal Vector3 RGB;
-    public Primitives(Vector3 RGB)
+    public Primitives(Vector3 RGB, materials material = materials.diffuse, double reflectiveIndex = 1)
     {
         this.RGB = RGB;
+        this.material = material;
+        this.reflectiveIndex = reflectiveIndex;
     }
 
     //this returns the normal, if given a distance. Every primitve must have this. 
-    //The regular expression simply return itself * -1, which is almost never correct
     internal virtual Vector3 ReturnNormal(Vector3 distance)
     {
-        distance.Normalize();
-        return -distance;
+        return new Vector3(0);
     }
 }
 
@@ -28,14 +32,15 @@ internal class Plane : Primitives
 {
     //defines the normal and distance by which the plane is defined
     internal Vector3 normal;
-    internal float distance;
+    internal Vector3 distance;
     //intitialize
-    public Plane(Vector3 normal, float distance, Vector3 RGB) : base(RGB)
+    public Plane(Vector3 normal, Vector3 distance, Vector3 RGB, materials material = materials.diffuse) : base(RGB, material)
     {
 
         this.normal = normal;
         this.normal.Normalize();
         this.distance = distance;
+        this.material = material;
     }
 
     // a plane can only return two normals, one for each side.
@@ -44,7 +49,7 @@ internal class Plane : Primitives
     {
         float inproduct = dist.X * normal.X + dist.Y * normal.Y + dist.Z * normal.Z;
         double angle = Math.Acos(inproduct / (dist.Length * normal.Length));
-        if(angle <= 90)
+        if(Math.Abs(angle) > 90)
         {
             return normal;
         }
@@ -58,10 +63,11 @@ internal class Sphere : Primitives
     internal Vector3 Position;
     internal float Radius;
     //intitialize
-    public Sphere(Vector3 Position, float Radius, Vector3 RGB) : base(RGB)
+    public Sphere(Vector3 Position, float Radius, Vector3 RGB, materials material = materials.diffuse) : base(RGB, material)
     {
         this.Position = Position;
         this.Radius = Radius;
+        this.material = material;
     }
 
     //returns a normal on the surface 

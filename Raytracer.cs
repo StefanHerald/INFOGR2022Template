@@ -18,6 +18,8 @@ namespace INFOGR2022Template
         Vector3 upRight;
         //downRight corner
         Vector3 downLeft;
+        //cap for the mirror recursion
+        int recursionCap;
         /// <summary>
         /// initialize the Raytracer using a scene, a camera and a screen.
         /// </summary>
@@ -64,83 +66,129 @@ namespace INFOGR2022Template
                 {
                     //reset the primary ray and set the direction and normalize it
                     primaryRay.scalar = 0;
-                    primaryRay.RGB = new Vector3(0);
-                    if((float)x / (float)OpenTKApp.app.screen.width == 0.5 && y/(float)OpenTKApp.app.screen.height == 0.5)
-                    {
-                        ;
-                    }
+                    primaryRay.RGB = new Vector3(0.1f);
                     primaryRay.direction = upLeft + ((float)x / (float)OpenTKApp.app.screen.width) * horizon + ((float)y / (float)OpenTKApp.app.screen.height) * vertical;
                     primaryRay.direction.Normalize();
-                    if(Math.Abs(primaryRay.direction.X) <= 0.5 && Math.Abs(primaryRay.direction.Y) <= 0.5 && primaryRay.direction.Z <= 3)
-                    {
-                        Console.WriteLine("found one: " + x + " " + y);
-                    }
                     //for every object
                     foreach (Primitives p in scene.objects)
                     {
+                        primaryRay.scalar = 1;
+                        intersection = new Intersection();
                         //if it is a sphere
-                        if (p is Sphere)
+                        //intersect the ray with the sphere, storing the result in the scalar of the primary ray
+                        //if it hits something
+                        if (Intersect(p, primaryRay))
                         {
-                            primaryRay.scalar = 1;
-                            //intersect the ray with the sphere, storing the result in the scalar of the primary ray
-                            intersection = new Intersection();
-                            //if it hits something
-                            if (IntersectSphere((Sphere)p, primaryRay))
+
+                            //change the RGB color from background to zero
+                            primaryRay.RGB = new Vector3(0);
+                            //set the scalar to the scalar calculated for the intersection
+                            primaryRay.scalar = intersection.distance.scalar;
+                            //if it is mirror material, calculate it differently 
+                            if (p.material == Primitives.materials.mirror)
                             {
-                                
-                                //create a shadow ray and set its position
-                                Ray shadowRay = new Ray();
-                                shadowRay.position = primaryRay.position + primaryRay.direction * primaryRay.scalar;
-                                //then for every light
-                                foreach (Light l in scene.lights)
-                                {
-                                    //reset the scalar and set the normal direction
-                                    shadowRay.scalar = 0;
-                                    shadowRay.direction = l.position - shadowRay.position;
-                                    shadowRay.direction.Normalize();
-                                    bool hitAny = false;
-                                    foreach (Primitives toCheck in scene.objects)
-                                    {
-                                        intersection = new Intersection();
-                                        if (toCheck is Sphere) 
-                                        {
-                                            hitAny = IntersectSphere((Sphere)toCheck, shadowRay);
-                                        }
-                                        if (hitAny)
-                                            break;
-                                    }
-                                    //if it doesn't hit any, set the color
-                                    if (!hitAny)
-                                    {
-
-                                        primaryRay.RGB = l.returnColor(p.ReturnNormal(primaryRay.position + primaryRay.direction * primaryRay.scalar), shadowRay.direction,p.RGB);
-                                    }
-                                }
+                                Ray secondaryRay = new Ray();
+                                secondaryRay.position = primaryRay.position + primaryRay.direction * primaryRay.scalar;
+                                secondaryRay.direction = primaryRay.direction - 2 * (primaryRay.direction * p.ReturnNormal(secondaryRay.position)) * p.ReturnNormal(secondaryRay.position);
+                                secondaryRay.direction.Normalize();
+                                primaryRay.RGB = CalculateMirror(p, secondaryRay);
+                                break;
                             }
-                            if(y == OpenTKApp.app.screen.height/2 && x%10 == 0)
-                            { 
-                                //draw the line between the camera and the screen
-
-                                OpenTKApp.Debug.debugScreen.Line(
-                                     OpenTKApp.Debug.debugScreen.width/2,
-                                     OpenTKApp.Debug.debugScreen.height,
-                                    (int)primaryRay.direction.X * -OpenTKApp.Debug.debugScreen.width / 10 + OpenTKApp.Debug.debugScreen.width / 2,
-                                    (int)primaryRay.direction.Z * -OpenTKApp.Debug.debugScreen.height / 10 + OpenTKApp.Debug.debugScreen.height,
-                                    0x00FF00);
-                            }
+                            //calculate the colour according to lights in scene
+                            primaryRay.RGB = returnColorLight(p, primaryRay);
                         }
                     }
-                    //using MixColor store the colour of the ray into the pixel
-                    OpenTKApp.app.screen.Plot(x, y, MixColor((int)(primaryRay.RGB.X * 255),
-                        (int)(primaryRay.RGB.Y * 255),
-                        (int)(primaryRay.RGB.Z * 255)));
+                    /*
+                    if (y == OpenTKApp.app.screen.height / 2 && x % 10 == 0)
+                    {
+                        //draw the line between the camera and the screen
+
+                        OpenTKApp.Debug.debugScreen.Line(
+                             OpenTKApp.Debug.debugScreen.width / 2,
+                             OpenTKApp.Debug.debugScreen.height,
+                            Math.Abs((int)primaryRay.direction.X * 10) + OpenTKApp.Debug.debugScreen.width / 2,
+                            Math.Abs((int)primaryRay.direction.Z * 10) + OpenTKApp.Debug.debugScreen.height,
+                            0x00FF00);
+                    }*/
+
+                    //using MixColor store the colour of the ray into the pixel. ofc, the colour cant be less than 0 or more than 255
+                    OpenTKApp.app.screen.Plot(x, y, MixColor((int)(MathHelper.Clamp(primaryRay.RGB.X,0,1) * 255),
+                        (int)(MathHelper.Clamp(primaryRay.RGB.Y, 0, 1) * 255),
+                        (int)(MathHelper.Clamp(primaryRay.RGB.Z, 0, 1) * 255)));
                 }
 
             }
         }
 
+        Vector3 returnColorLight(Primitives p, Ray calcRay)
+        {
+            //create a shadow ray and set its position
+
+            Ray shadowRay = new Ray();
+            shadowRay.position = calcRay.position + calcRay.direction * calcRay.scalar;
+            //then for every light
+            foreach (Light l in scene.lights)
+            {
+                //reset the scalar and set the normal direction
+                shadowRay.scalar = 0;
+                shadowRay.direction = l.position - shadowRay.position;
+                shadowRay.direction.Normalize();
+                bool hitAny = false;
+                foreach (Primitives toCheck in scene.objects)
+                {
+                    intersection = new Intersection();
+                    hitAny = Intersect(toCheck, shadowRay);
+                    if (hitAny)
+                        break;
+                }
+                //if it doesn't hit any, set the color
+                if (!hitAny)
+                {
+                    calcRay.RGB += l.returnColor(p.ReturnNormal(calcRay.position + calcRay.direction * calcRay.scalar),
+                        shadowRay.direction,
+                        p.RGB,
+                        -camera.lookAtDirection,
+                        p.material);
+                }
+            }
+            return calcRay.RGB;
+        }
+        Vector3 CalculateMirror(Primitives toCheck, Ray secondaryRay)
+        {
+            if (secondaryRay.amountOfRecursion++ == recursionCap)
+                return new Vector3(0);
+            foreach (Primitives p in scene.objects)
+            {
+                if (Intersect(p, secondaryRay))
+                    if (p.material == Primitives.materials.mirror)
+                    {
+                        secondaryRay.RGB *= toCheck.RGB;
+                        secondaryRay.position = secondaryRay.position + secondaryRay.direction * intersection.distance.scalar;
+                        secondaryRay.direction = secondaryRay.direction - 2 * (secondaryRay.direction * p.ReturnNormal(secondaryRay.position)) * p.ReturnNormal(secondaryRay.position);
+                        secondaryRay.direction.Normalize();
+                        return CalculateMirror(p, secondaryRay);
+                    }
+                    else
+                    {
+                        secondaryRay.RGB *= returnColorLight(p, secondaryRay);
+                    }
+            }
+            return secondaryRay.RGB;
+        }
+
+       
+        bool Intersect(Primitives toCheck, Ray ray)
+        {
+            bool inter = false;
+            if (toCheck is Sphere)
+                inter = IntersectSphere((Sphere)toCheck, ray);
+            if (toCheck is Plane)
+                inter = IntersectPlane((Plane)toCheck, ray);
+            return inter;
+
+        }
         //intersect a ray with the sphere, storing the scalar if it does
-        internal bool IntersectSphere(Sphere sphere, Ray ray)
+        bool IntersectSphere(Sphere sphere, Ray ray)
         {
             Vector3 c = sphere.Position - ray.position;
             float t = Vector3.Dot(c, ray.direction);
@@ -151,11 +199,32 @@ namespace INFOGR2022Template
                 return false;
             }
             t -= (float)Math.Sqrt(sphere.Radius - p2);
-            if ((t < ray.scalar) && (t > 0))
+            if (Math.Abs(t) > 0.001)
+            {
                 ray.scalar = t;
-            intersection.nearestPrimitive = sphere;
+                intersection.nearestPrimitive = sphere;
+                intersection.distance = ray;
+                return true;
+            }
+            return false;
+        }
+
+        internal bool IntersectPlane(Plane plane, Ray ray)
+        {
+            intersection.nearestPrimitive = plane;
             intersection.distance = ray;
-            return true;
+            float scalar = Vector3.Dot(plane.normal, ray.direction);
+            if (scalar > 0)
+            {
+                Vector3 intersect = plane.distance - ray.position;
+                var t = Vector3.Dot(intersect, plane.normal) / scalar;
+                if (t >= 0.0001)
+                {
+                    intersection.distance.scalar = t;
+                    return true;
+                }
+            }
+            return false;
         }
 
         //a ray is defined by a position and a (normalized) direction
@@ -165,6 +234,7 @@ namespace INFOGR2022Template
             internal Vector3 position;
             internal float scalar;
             internal Vector3 direction;
+            internal int amountOfRecursion;
         }
         //mix a color
         int MixColor(int red, int green, int blue)
