@@ -31,6 +31,8 @@ namespace INFOGR2022Template
 		}
 		public void Tick()
         {
+			//updates the camera for the debug
+			camera = MyApplication.camera;
 			//Clears the debug screen, then renders it
 			debugScreen.Clear(0x000000);
 			//Draws the lines for the debug screen (could be looked at again, not sure)
@@ -86,8 +88,17 @@ namespace INFOGR2022Template
 				//this draws the lines from the camera to the circles.
 				float dot = 0;
 				Vector2 line = far - new Vector2(camera.position.X, camera.position.Z);
+				Vector2 line1;
+				Vector2 line2;
 				for (double i = j + Math.PI / 2; i > k + Math.PI / 2; i -= Math.PI / 10)
                 {
+					if (camera.position.X > near.X && camera.position.X < far.X)
+					if (camera.position.Z > near.Y && camera.position.Z < far.Y)
+					{
+						Console.WriteLine("Inside of primitive, can't debug");
+						break;
+					}
+
 					x1 = (Position.X + (c.Radius * (float)Math.Cos(i))) * debugScreen.width / 16;
                     y1 = (Position.Z + (c.Radius * (float)Math.Sin(i))) * debugScreen.height / 10;
                     if (i > j)
@@ -95,11 +106,18 @@ namespace INFOGR2022Template
                         x2 = (Position.X + (c.Radius * (float)Math.Cos(i - Math.PI / 10))) * debugScreen.width / 16;
                         y2 = (Position.Z + (c.Radius * (float)Math.Sin(i - Math.PI / 10))) * debugScreen.height / 10;
                     }
-                    if (i <= j && Vector2.Dot(new Vector2(x1 - camera.position.X, y1 - camera.position.Z), line) <= dot)
+					else
+					{
+						x2 = (Position.X + (c.Radius * (float)Math.Cos(i + Math.PI / 10))) * debugScreen.width / 16;
+						y2 = (Position.Z + (c.Radius * (float)Math.Sin(i + Math.PI / 10))) * debugScreen.height / 10;
+					}
+					line1 = new Vector2(x1, y1);
+					line2 = new Vector2(x2, y2);
+					line1.Normalize();
+					line2.Normalize();
+					if (i <= j && (line1.Y < line2.Y))
                         break;
-                    else if (i <= j)
-                        dot = Vector2.Dot(new Vector2(x1 - camera.position.X, y1 - camera.position.Z), line);
-                    if (i >= j && Vector2.Dot(new Vector2(x1 - camera.position.X, y1 - camera.position.Z), line) <= Vector2.Dot(new Vector2(x2 - camera.position.X, y2 - camera.position.Z), line))
+                    else if (i >= j && line1.Y > line2.Y)
                         continue;
                     debugScreen.Line((int)camera.position.X, (int)camera.position.Z, (int)x1, (int)y1, 0xFFFF00);
 				}

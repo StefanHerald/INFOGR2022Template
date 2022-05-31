@@ -70,6 +70,22 @@ namespace Template
 			if (keyboard[OpenTK.Input.Key.B] && keyboard != previouskeys)
 				app.debugMode = !app.debugMode;
 			previouskeys = keyboard;
+			//Movement for the camera
+			//Vertical (Y)
+			if (keyboard[OpenTK.Input.Key.R] && keyboard != previouskeys)
+				MyApplication.camera.position.Y -= .5f;
+			if (keyboard[OpenTK.Input.Key.F] && keyboard != previouskeys)
+				MyApplication.camera.position.Y += .5f;
+			//Horizontal (X)
+			if (keyboard[OpenTK.Input.Key.A] && keyboard != previouskeys)
+				MyApplication.camera.position.X -= .5f;
+			if (keyboard[OpenTK.Input.Key.D] && keyboard != previouskeys)
+				MyApplication.camera.position.X += .5f;
+			//Depth(Z)
+			if (keyboard[OpenTK.Input.Key.W] && keyboard != previouskeys)
+				MyApplication.camera.position.Z += .5f;
+			if (keyboard[OpenTK.Input.Key.S] && keyboard != previouskeys)
+				MyApplication.camera.position.Z -= .5f;
 		}
 
 		protected override void OnRenderFrame(FrameEventArgs e)
