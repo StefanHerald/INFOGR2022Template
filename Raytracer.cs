@@ -235,7 +235,6 @@ namespace INFOGR2022Template
             internal float scalar;
             internal Vector3 direction;
             internal int amountOfRecursion;
-            internal bool inside;
         }
         //mix a color
         int MixColor(int red, int green, int blue)
