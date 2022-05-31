@@ -26,7 +26,7 @@ namespace INFOGR2022Template
             this.FOV = FOV;
             this.lookAtDirection = lookAtDirection;
             this.upDirection = upDirection;
-            screen = new Plane(position + lookAtDirection, FOV, new Vector3(0));
+            screen = new Plane(position + lookAtDirection, position + lookAtDirection * FOV, new Vector3(0));
         }
     }
 }
