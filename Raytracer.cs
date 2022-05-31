@@ -19,7 +19,7 @@ namespace INFOGR2022Template
         //downRight corner
         Vector3 downLeft;
         //cap for the mirror recursion
-        int recursionCap;
+        int recursionCap = 10;
         /// <summary>
         /// initialize the Raytracer using a scene, a camera and a screen.
         /// </summary>

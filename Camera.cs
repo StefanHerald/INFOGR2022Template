@@ -16,14 +16,15 @@ namespace INFOGR2022Template
         // the plane to define the screen
         internal Plane screen;
 
-        public Camera(Vector3 position, Vector3 lookAtDirection, Vector3 upDirection,  float alpha = 120)
+        public Camera(Vector3 position, Vector3 lookAtDirection, Vector3 upDirection, float alpha = 120)
         {
             this.position = position;
             this.lookAtDirection = lookAtDirection;
             this.upDirection = upDirection;
             Vector3 rightDirection = Vector3.Cross(upDirection, lookAtDirection);
+            //calculate the FOV scale for the lookatDirection. both the length of the rightDirection and the lookatdirection are normalized, so we simplified.
+            FOV = 1 / (float)Math.Tan(MathHelper.DegreesToRadians(alpha / 2));
             screen = new Plane(position + lookAtDirection, position + lookAtDirection * FOV, new Vector3(0));
-            FOV = rightDirection.Length / ((float)(Math.Tan(alpha / 2)) * lookAtDirection.Length);
         }
     }
 }
