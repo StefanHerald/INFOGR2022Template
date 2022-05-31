@@ -2,6 +2,7 @@
 using System;
 using Template;
 using System.Linq;
+
 namespace INFOGR2022Template
 {
     internal class Debug
@@ -49,6 +50,7 @@ namespace INFOGR2022Template
 				Vector3 Position = c.Position * angle;
 				for (double i = 0; i < 2 * Math.PI; i+= Math.PI / 50)
 				{
+					//x1 and y1 need to be set before x2 and y2 the first time, otherwise it crashes
 					if (i == 0)
                     {
 						x1 = (Position.X + (c.Radius * (float)Math.Cos(i))) * debugScreen.width / 16;
@@ -57,33 +59,50 @@ namespace INFOGR2022Template
 					//x2 and y2 are the previous positions, they make the lines possible
 					y2 = y1;
 					x2 = x1;
+					//x1 and y1 are points on the circle, with 100 lines between the points it looks like a circle
                     x1 = (Position.X + (c.Radius * (float)Math.Cos(i))) * debugScreen.width / 16;
                     y1 = (Position.Z + (c.Radius * (float)Math.Sin(i))) * debugScreen.height / 10;
                     debugScreen.Line((int)x1, (int)y1, (int)x2, (int)y2, 0xFFFFFF);
-					if (new Vector2(x1 - camera.position.X, y1 - camera.position.Y).Length < near.Length)
+					//this calculates if the current point is the closest or furthest point from the camera, used for the debug raytracing
+					if (new Vector2(x1 - camera.position.X, y1 - camera.position.Z).Length < near.Length)
 					{
-						near = new Vector2(x1 - camera.position.X, y1 - camera.position.Y);
+						near = new Vector2(x1 - camera.position.X, y1 - camera.position.Z);
 						j = i;
 					}
-					if (new Vector2(x1 - camera.position.X, y1 - camera.position.Y).Length > far.Length)
+					if (new Vector2(x1 - camera.position.X, y1 - camera.position.Z).Length > far.Length)
 					{
-						far = new Vector2(x1 - camera.position.X, y1 - camera.position.Y);
+						far = new Vector2(x1 - camera.position.X, y1 - camera.position.Z);
 						k = i;
 					}
 
 				}
+				//the next loop depends on k being smaller than j, so it swaps them if needed
 				if(j < k)
                 {
 					double var = j;
 					j = k;
 					k = var;
                 }
+				//this draws the lines from the camera to the circles.
+				float dot = 0;
+				Vector2 line = far - new Vector2(camera.position.X, camera.position.Z);
 				for (double i = j + Math.PI / 2; i > k + Math.PI / 2; i -= Math.PI / 10)
                 {
 					x1 = (Position.X + (c.Radius * (float)Math.Cos(i))) * debugScreen.width / 16;
-					y1 = (Position.Z + (c.Radius * (float)Math.Sin(i ))) * debugScreen.height / 10;
-					debugScreen.Line((int)camera.position.X, (int)camera.position.Z, (int)x1, (int)y1, 0xFFFF00);
-                }
+                    y1 = (Position.Z + (c.Radius * (float)Math.Sin(i))) * debugScreen.height / 10;
+                    if (i > j)
+                    {
+                        x2 = (Position.X + (c.Radius * (float)Math.Cos(i - Math.PI / 10))) * debugScreen.width / 16;
+                        y2 = (Position.Z + (c.Radius * (float)Math.Sin(i - Math.PI / 10))) * debugScreen.height / 10;
+                    }
+                    if (i <= j && Vector2.Dot(new Vector2(x1 - camera.position.X, y1 - camera.position.Z), line) <= dot)
+                        break;
+                    else if (i <= j)
+                        dot = Vector2.Dot(new Vector2(x1 - camera.position.X, y1 - camera.position.Z), line);
+                    if (i >= j && Vector2.Dot(new Vector2(x1 - camera.position.X, y1 - camera.position.Z), line) <= Vector2.Dot(new Vector2(x2 - camera.position.X, y2 - camera.position.Z), line))
+                        continue;
+                    debugScreen.Line((int)camera.position.X, (int)camera.position.Z, (int)x1, (int)y1, 0xFFFF00);
+				}
 			}
 		}
 
