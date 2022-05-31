@@ -9,7 +9,7 @@ namespace Template
         // member variables
         internal Surface screen;
         Raytracer raytracer;
-        Camera camera;
+        internal static Camera camera;
         internal static Scene scene;
         internal bool debugMode;
         int a = 0;
