@@ -1,9 +1,5 @@
 ﻿using OpenTK;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace INFOGR2022Template
 {
@@ -20,13 +16,14 @@ namespace INFOGR2022Template
         // the plane to define the screen
         internal Plane screen;
 
-        public Camera(Vector3 position, Vector3 lookAtDirection, Vector3 upDirection,  float FOV = 1)
+        public Camera(Vector3 position, Vector3 lookAtDirection, Vector3 upDirection,  float alpha = 120)
         {
             this.position = position;
-            this.FOV = FOV;
             this.lookAtDirection = lookAtDirection;
             this.upDirection = upDirection;
+            Vector3 rightDirection = Vector3.Cross(upDirection, lookAtDirection);
             screen = new Plane(position + lookAtDirection, position + lookAtDirection * FOV, new Vector3(0));
+            FOV = rightDirection.Length / ((float)(Math.Tan(alpha / 2)) * lookAtDirection.Length);
         }
     }
 }
