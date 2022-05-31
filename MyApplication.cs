@@ -9,7 +9,7 @@ namespace Template
         // member variables
         internal Surface screen;
         Raytracer raytracer;
-        Camera camera;
+        internal static Camera camera;
         internal static Scene scene;
         //manages if the debug should be drawn
         internal bool debugMode;
