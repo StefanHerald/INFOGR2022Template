@@ -27,16 +27,14 @@ namespace INFOGR2022Template
             {
                 case Primitives.materials.diffuse:
                     reflected = (1f / lightDirection.LengthSquared) * watt * RGB * Math.Max(0, Vector3.Dot(normal, lightDirection));
-                    MathHelper.Clamp(reflected.X, 0, colour.X);
-                    MathHelper.Clamp(reflected.Y, 0, colour.Y);
-                    MathHelper.Clamp(reflected.Z, 0, colour.Z);
+                    reflected = Vector3.Clamp(reflected, new Vector3(0), colour);
                     break;
                 case Primitives.materials.glossy:
                     Vector3 R = lightDirection - 2 * (lightDirection * normal) * normal;
-                    reflected = returnColor(normal,lightDirection,colour,lookAtDirection,Primitives.materials.diffuse) * (1f / lightDirection.LengthSquared) * watt * RGB * (float)Math.Pow(Math.Max(0, Vector3.Dot(R, lookAtDirection)), gloss);
+                    reflected = returnColor(normal,lightDirection,colour,lookAtDirection,Primitives.materials.diffuse) + (1f / lightDirection.LengthSquared) * watt * RGB * (float)Math.Pow(Math.Max(0, Vector3.Dot(R, lookAtDirection)), gloss);
                     break;
             }
-            return reflected;
+            return Vector3.Clamp(new Vector3(0.07f),reflected,new Vector3(1));
         }
     }
 }

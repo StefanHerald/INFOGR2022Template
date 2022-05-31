@@ -66,7 +66,7 @@ namespace INFOGR2022Template
                 {
                     //reset the primary ray and set the direction and normalize it
                     primaryRay.scalar = 0;
-                    primaryRay.RGB = new Vector3(0.1f);
+                    primaryRay.RGB = new Vector3(0.05f);
                     primaryRay.direction = upLeft + ((float)x / (float)OpenTKApp.app.screen.width) * horizon + ((float)y / (float)OpenTKApp.app.screen.height) * vertical;
                     primaryRay.direction.Normalize();
                     //for every object
@@ -98,18 +98,6 @@ namespace INFOGR2022Template
                             primaryRay.RGB = returnColorLight(p, primaryRay);
                         }
                     }
-                    /*
-                    if (y == OpenTKApp.app.screen.height / 2 && x % 10 == 0)
-                    {
-                        //draw the line between the camera and the screen
-
-                        OpenTKApp.Debug.debugScreen.Line(
-                             OpenTKApp.Debug.debugScreen.width / 2,
-                             OpenTKApp.Debug.debugScreen.height,
-                            Math.Abs((int)primaryRay.direction.X * 10) + OpenTKApp.Debug.debugScreen.width / 2,
-                            Math.Abs((int)primaryRay.direction.Z * 10) + OpenTKApp.Debug.debugScreen.height,
-                            0x00FF00);
-                    }*/
 
                     //using MixColor store the colour of the ray into the pixel. ofc, the colour cant be less than 0 or more than 255
                     OpenTKApp.app.screen.Plot(x, y, MixColor((int)(MathHelper.Clamp(primaryRay.RGB.X,0,1) * 255),
@@ -146,13 +134,23 @@ namespace INFOGR2022Template
                 {
                     calcRay.RGB += l.returnColor(p.ReturnNormal(calcRay.position + calcRay.direction * calcRay.scalar),
                         shadowRay.direction,
-                        p.RGB,
+                        p.GetColour(calcRay.position + calcRay.direction * calcRay.scalar),
                         -camera.lookAtDirection,
                         p.material);
+                }
+                else
+                {
+                    calcRay.RGB = new Vector3(0.07f);
                 }
             }
             return calcRay.RGB;
         }
+        /// <summary>
+        /// calculates the colour for a pixel on a mirror primitive
+        /// </summary>
+        /// <param name="toCheck"></param>
+        /// <param name="secondaryRay"></param>
+        /// <returns></returns>
         Vector3 CalculateMirror(Primitives toCheck, Ray secondaryRay)
         {
             if (secondaryRay.amountOfRecursion++ == recursionCap)
