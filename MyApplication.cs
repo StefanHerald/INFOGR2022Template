@@ -20,7 +20,7 @@ namespace Template
             scene = new Scene();
             scene.objects.Add(new Sphere(new Vector3(3, 8, 5), 2, new Vector3(1f, 0f, 0f)));
             scene.objects.Add(new Sphere(new Vector3(-3, 16, 10), 1, new Vector3(0f, 1f, 0f)));
-            scene.lights.Add(new Light(new Vector3(6,4,3), new Vector3(1, 1, 1), 1000));
+            scene.lights.Add(new Light(new Vector3(6,4,3), new Vector3(1, 1, 1), 0.5f));
             camera = new Camera(new Vector3(0), new Vector3(0, 0, 1), new Vector3(0, 1, 0));
             raytracer = new Raytracer(scene, camera);
         }
